@@ -1,0 +1,12 @@
+{
+  "extends": "@tsconfig/recommended/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../data/Generator/templates/server-runtime",
+    "declaration": false,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src",
+    "test"
+  ]
+}
