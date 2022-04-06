@@ -26,6 +26,7 @@ import StrongPath
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -38,7 +39,7 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds, prismaVersionBounds)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createCopyFileDraft, createTemplateFileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -47,6 +48,7 @@ import Wasp.Generator.ServerGenerator.Common
   ( ServerSrcDir,
     asServerFile,
     asTmplFile,
+    serverRuntimeDirInProjectRootDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
@@ -63,7 +65,8 @@ genServer spec =
       genPackageJson spec npmDepsForWasp,
       genNpmrc,
       genNvmrc,
-      genGitignore
+      genGitignore,
+      genRuntime
     ]
     <++> genSrcDir spec
     <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
@@ -236,6 +239,14 @@ genRoutesDir spec =
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
 
+genRuntime :: Generator FileDraft
+genRuntime = do
+  return $
+    createTemplateFileDraft
+      (fromJust $ SP.parseAbsDir "/Users/shayne/dev/wasp/waspc/examples/todoApp/.wasp/out/server-runtime")
+      tmplSrcPath
+      Nothing
+
 -- | TODO: Make this not hardcoded as well!
 relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
@@ -256,6 +267,7 @@ genJobs spec = return $ genJob <$> getJobs spec
                 object
                   [ "jobName" .= jobName,
                     "jobFnName" .= jobFnName,
-                    "jobFnImportStatement" .= jobFnImportStatement
+                    "jobFnImportStatement" .= jobFnImportStatement,
+                    "jobFactoryName" .= ("passthroughJobFactory" :: String)
                   ]
             )

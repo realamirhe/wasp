@@ -2,6 +2,7 @@ module Wasp.Generator.ServerGenerator.Common
   ( serverRootDirInProjectRootDir,
     serverSrcDirInServerRootDir,
     serverSrcDirInProjectRootDir,
+    serverRuntimeDirInProjectRootDir,
     mkTmplFd,
     mkTmplFdWithDstAndData,
     mkSrcTmplFd,
@@ -32,6 +33,8 @@ data ServerTemplatesDir
 
 data ServerTemplatesSrcDir
 
+data ServerRuntimeDir
+
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesDir) File'
 asTmplFile = SP.castRel
 
@@ -45,6 +48,9 @@ asServerSrcFile :: Path' (Rel d) File' -> Path' (Rel ServerSrcDir) File'
 asServerSrcFile = SP.castRel
 
 -- * Paths
+
+serverRuntimeDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir ServerRuntimeDir)
+serverRuntimeDirInProjectRootDir = [reldir|server-runtime|]
 
 -- | Path where server root dir is generated.
 serverRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir ServerRootDir)
